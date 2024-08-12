@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Customer Dashboard</title>
+    <script>
+        // Function to add selected fruits to the cart
+        async function addToCart(event) {
+            event.preventDefault();
+
+            const selectedFruits = [];
+            const checkboxes = document.querySelectorAll('input[name="selected_fruits"]:checked');
+            checkboxes.forEach((checkbox) => {
+                const fruitId = checkbox.value;
+                const quantity = document.getElementById(`quantity_${fruitId}`).value;
+                selectedFruits.push({ fruit_id: fruitId, quantity: parseInt(quantity) });
+            });
+
+            if (selectedFruits.length === 0) {
+                alert("Please select at least one fruit.");
+                return;
+            }
+
+            const response = await fetch('/customer/add_to_cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`  // Include the JWT token
+                },
+                body: JSON.stringify({ items: selectedFruits })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert(data.message);
+            } else {
+                const error = await response.json();
+                alert('Error adding to cart: ' + error.detail);
+            }
+        }
+
+        // Function to handle view cart redirection
+        async function viewCart(event) {
+            event.preventDefault();
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('You are not logged in. Please log in to view your cart.');
+                window.location.href = '/auth/login';
+                return;
+            }
+
+            window.location.href = '/customer/view_cart';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Customer Dashboard</h2>
+        <p>Welcome, <strong>{{ username }}</strong>!</p>
+
+        <h3>Select Your Fruits</h3>
+        <form id="cartForm" onsubmit="addToCart(event)">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Name</th>
+                        <th>Price per Kg</th>
+                        <th>Available Quantity</th>
+                        <th>Select Quantity (Kg)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fruit in fruits %}
+                    <tr>
+                        <td><input type="checkbox" name="selected_fruits" value="{{ fruit._id }}"></td>
+<td>{{ fruit.name }}</td>
+<td>Rs {{ fruit.price }}</td>
+<td>{{ fruit.quantity }}</td>
+<td><input type="number" id="quantity_{{ fruit._id }}" name="quantity_{{ fruit._id }}" min="1" max="{{ fruit.quantity }}" value="1"></td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit">Add to Cart</button>
+        </form>
+        <button onclick="viewCart(event)">View Cart</button>
+    </div>
+</body>
+</html>

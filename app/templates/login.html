@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Login or Register</title>
+    <script>
+        async function login(event) {
+            event.preventDefault();  // Prevent the default form submission
+
+            const username = document.getElementById("login_username").value;
+            const password = document.getElementById("login_password").value;
+
+            const response = await fetch('/auth/login', {
+                method: 'POST',  // Ensure the method is POST
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert('Login successful!');
+                localStorage.setItem('token', data.access_token);
+                window.location.href = '/customer/dashboard';  // Redirect after successful login
+            } else {
+                const errorData = await response.json();
+                alert('Login failed: ' + errorData.detail);
+            }
+        }
+
+        async function register(event) {
+            event.preventDefault();  // Prevent the default form submission
+
+            const username = document.getElementById("register_username").value;
+            const password = document.getElementById("register_password").value;
+
+            const response = await fetch('/auth/register', {
+                method: 'POST',  // Ensure the method is POST
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                alert('Registration successful! You can now log in.');
+            } else {
+                const errorData = await response.json();
+                alert('Registration failed: ' + errorData.detail);
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="auth-container">
+        <h2>Login</h2>
+        <form id="loginForm" onsubmit="login(event)">
+            <label for="login_username">Username:</label>
+            <input type="text" id="login_username" name="username" required>
+
+            <label for="login_password">Password:</label>
+            <input type="password" id="login_password" name="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <div class="auth-container">
+        <h2>Register</h2>
+        <form id="registerForm" onsubmit="register(event)">
+            <label for="register_username">Username:</label>
+            <input type="text" id="register_username" name="username" required>
+
+            <label for="register_password">Password:</label>
+            <input type="password" id="register_password" name="password" required>
+
+            <button type="submit">Register</button>
+        </form>
+    </div>
+</body>
+</html>

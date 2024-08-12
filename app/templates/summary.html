@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Cart Summary</title>
+    <script>
+        // Function to clear the cart
+        function clearCart() {
+            if (confirm("Are you sure you want to clear the cart?")) {
+                fetch('/customer/clear_cart', {
+                    method: 'POST',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    window.location.reload();  // Reload the page to refresh the cart
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Fruit Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Price per Kg</th>
+                    <th>Selected Quantity (Kg)</th>
+                    <th>Total Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fruit in fruits %}
+                <tr>
+                    <td>{{ fruit.name }}</td>
+                    <td>Rs {{ fruit.price }}</td>
+                    <td>{{ fruit.quantity }} Kg</td>
+                    <td>Rs {{ fruit.total_cost }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h3>Total Cart Price: Rs {{ total_cart_price }}</h3>
+        <button onclick="clearCart()">Clear Cart</button>
+        <a href="/customer/dashboard">Back to Dashboard</a>
+    </div>
+</body>
+</html>

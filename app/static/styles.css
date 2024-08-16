@@ -20,6 +20,7 @@ body {
     width: 80%; /* Increased width to cover more of the screen */
     max-width: 900px;
     margin: 20px auto; /* Centering the container */
+    position: relative; /* For positioning the logout button */
 }
 
 /* Headings */
@@ -65,7 +66,48 @@ td {
     background-color: #f9f9f9;
 }
 
-/* Submit Button */
+/* Button Styling */
+.button-container {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.view-cart-btn {
+    background-color: #4CAF50; /* Green */
+    color: white;
+}
+
+.add-to-cart-btn {
+    background-color: #2196F3; /* Blue */
+    color: white;
+}
+
+/* Logout Button Styling */
+.logout-container {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
+.logout-btn {
+    background-color: #f44336; /* Red */
+    color: white;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
 input[type="submit"] {
     background-color: #4CAF50;
     color: white;
@@ -79,4 +121,17 @@ input[type="submit"] {
 
 input[type="submit"]:hover {
     background-color: #45a049;
+}
+
+/* Adjustments for Responsiveness */
+@media (max-width: 768px) {
+    .button-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .logout-container {
+        bottom: 10px;
+        right: 10px;
+    }
 }

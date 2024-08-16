@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends,Request
+from fastapi import APIRouter, HTTPException, Depends,Request, Response
 from fastapi.responses import JSONResponse
 from ..auth import create_access_token, verify_password,get_password_hash
 from ..models import LoginData,UserCreate
@@ -24,7 +24,9 @@ async def login(login_data: LoginData, db=Depends(get_db)):
         # Generate JWT token
         access_token = create_access_token(data={"sub": login_data.username})
 
-        return JSONResponse({"access_token": access_token, "token_type": "bearer"})
+        response = JSONResponse({})
+        response.set_cookie('token', access_token)
+        return response
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=f"Database error: {e}")
     except Exception as e:
@@ -54,3 +56,8 @@ async def register_user(user_data: UserCreate, db=Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Database error: {e}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
+
+@router.post("/logout")
+async def logout(response: Response):
+    response.delete_cookie(key="token")
+    return {"message": "Successfully logged out"}

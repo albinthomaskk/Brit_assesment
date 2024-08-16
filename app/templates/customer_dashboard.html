@@ -27,7 +27,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`  // Include the JWT token
+                    'Authorization': `${localStorage.getItem('token')}`  // Include the JWT token
                 },
                 body: JSON.stringify({ items: selectedFruits })
             });
@@ -54,12 +54,34 @@
 
             window.location.href = '/customer/view_cart';
         }
+
+        // Function to handle logout
+        async function logout(event) {
+            event.preventDefault();
+
+            const response = await fetch('/auth/logout', {
+                method: 'POST',
+            });
+
+            if (response.ok) {
+                localStorage.removeItem('token');
+                alert('Logged out successfully.');
+                window.location.href = '/auth/login';
+            } else {
+                alert('Error logging out. Please try again.');
+            }
+        }
     </script>
 </head>
 <body>
     <div class="container">
         <h2>Customer Dashboard</h2>
         <p>Welcome, <strong>{{ username }}</strong>!</p>
+
+        <div class="button-container">
+            <button class="view-cart-btn" onclick="viewCart(event)">View Cart</button>
+            <button class="add-to-cart-btn" form="cartForm">Add to Cart</button>
+        </div>
 
         <h3>Select Your Fruits</h3>
         <form id="cartForm" onsubmit="addToCart(event)">
@@ -77,18 +99,19 @@
                     {% for fruit in fruits %}
                     <tr>
                         <td><input type="checkbox" name="selected_fruits" value="{{ fruit._id }}"></td>
-<td>{{ fruit.name }}</td>
-<td>Rs {{ fruit.price }}</td>
-<td>{{ fruit.quantity }}</td>
-<td><input type="number" id="quantity_{{ fruit._id }}" name="quantity_{{ fruit._id }}" min="1" max="{{ fruit.quantity }}" value="1"></td>
-
+                        <td>{{ fruit.name }}</td>
+                        <td>Rs {{ fruit.price }}</td>
+                        <td>{{ fruit.quantity }}</td>
+                        <td><input type="number" id="quantity_{{ fruit._id }}" name="quantity_{{ fruit._id }}" min="1" max="{{ fruit.quantity }}" value="1"></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            <button type="submit">Add to Cart</button>
         </form>
-        <button onclick="viewCart(event)">View Cart</button>
+
+        <div class="logout-container">
+            <button class="logout-btn" onclick="logout(event)">Logout</button>
+        </div>
     </div>
 </body>
 </html>

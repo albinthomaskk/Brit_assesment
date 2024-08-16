@@ -3,11 +3,12 @@ from .. import templates, get_db
 from bson import ObjectId
 from pymongo.errors import PyMongoError
 from ..models import AddToCartRequest, CartItem
-
+from ..auth import get_current_user
 router = APIRouter()
 
 @router.get("/dashboard")
-def customer_dashboard(request: Request, db=Depends(get_db)):
+def customer_dashboard(request: Request, db=Depends(get_db),
+                       user: str = Depends(get_current_user)):
     """
     Serve the customer dashboard with a list of available fruits.
 
@@ -28,7 +29,7 @@ def customer_dashboard(request: Request, db=Depends(get_db)):
 
         return templates.TemplateResponse("customer_dashboard.html", {
             "request": request,
-            "username": "testuser",
+            "username": user,
             "fruits": fruits
         })
     except PyMongoError as e:
@@ -39,8 +40,9 @@ def customer_dashboard(request: Request, db=Depends(get_db)):
 
 @router.post("/add_to_cart")
 async def add_to_cart(
+        request: Request,
         cart_request: AddToCartRequest,
-        db=Depends(get_db),
+        db=Depends(get_db), user: str = Depends(get_current_user)
 ):
     """
     Add selected fruits to the cart for the hardcoded user.
@@ -69,7 +71,7 @@ async def add_to_cart(
                 "price": fruit['price'],
                 "quantity": item.quantity,
                 "total_cost": item.quantity * fruit['price'],
-                "user_id": "testuser",  # Hardcoded user identifier
+                "user_id": user,
             })
 
         # Insert the purchase data into the 'purchase_details' collection
@@ -85,7 +87,7 @@ async def add_to_cart(
 @router.get("/view_cart")
 def view_cart(
         request: Request,
-        db=Depends(get_db),
+        db=Depends(get_db), user: str = Depends(get_current_user)
 ):
     """
     View the current cart contents for the hardcoded user.
@@ -99,7 +101,7 @@ def view_cart(
     """
     try:
         # Fetch the purchase details for the hardcoded user
-        purchase_details = db["purchase_details"].find({"user_id": "testuser"})
+        purchase_details = db["purchase_details"].find({"user_id": user})
 
         total_cart_price = 0
         fruits = []
@@ -120,7 +122,7 @@ def view_cart(
 
 
 @router.post("/clear_cart")
-def clear_cart(db=Depends(get_db)):
+def clear_cart(request: Request, db=Depends(get_db), user: str = Depends(get_current_user)):
     """
     Clear the cart for the hardcoded user.
 
@@ -132,7 +134,7 @@ def clear_cart(db=Depends(get_db)):
     """
     try:
         # Remove all documents from the 'purchase_details' collection for the hardcoded user
-        db["purchase_details"].delete_many({"user_id": "testuser"})
+        db["purchase_details"].delete_many({"user_id": user})
 
         return {"message": "Cart cleared successfully"}
     except PyMongoError as e:

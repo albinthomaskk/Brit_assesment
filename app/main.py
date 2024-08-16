@@ -2,7 +2,7 @@ from app import app  # Absolute import instead of relative
 from app.routes import customer,  auth_routes
 from fastapi.requests import Request
 from fastapi.templating import Jinja2Templates
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="app/templates")
 
 # Include the routers for different functionalities
 app.include_router(auth_routes.router, prefix="/auth")
